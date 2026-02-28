@@ -278,7 +278,6 @@ const PinoyFlixFixed = () => {
                   }}
                 />
                 
-                {/* Custom Done Button Layout specifically for iOS */}
                 {Platform.OS === "ios" && (
                   <TouchableOpacity
                     style={styles.iosDoneButton}

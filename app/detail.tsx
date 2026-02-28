@@ -14,32 +14,33 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 const RegistrationDetails = () => {
   const router = useRouter();
 
-  // Receives params from the form via router.push()
   const params = useLocalSearchParams();
 
-  // Aligned keys to exactly match the index page: fName, lName, mName, DOB
   const userData = {
     fName: params.fName || "Juan",
     mName: params.mName || "Santos",
     lName: params.lName || "Dela Cruz",
-    DOB: params.DOB || "10/02/2005", // MM/DD/YYYY format
+    DOB: params.DOB || "10/02/2005", 
     address: params.address || "Maharuhay, Medellin, Cebu",
     email: params.email || "juan.delacruz@example.com",
     contact: params.contact || "0912 345 6789",
   };
 
-  // Helper function to format the full name cleanly (UI display logic)
   const getFullName = () => {
     const { fName, mName, lName } = userData;
     const middleInitial = mName ? `${mName.charAt(0)}.` : "";
     return `${fName} ${middleInitial} ${lName}`.trim();
   };
 
-  // Helper function to calculate age based on MM/DD/YYYY birthdate
   const calculateAge = (dobString) => {
     if (!dobString) return "N/A";
 
-    const dob = new Date(dobString);
+    const parts = dobString.split("/");
+    
+    if (parts.length !== 3) return "Invalid Date";
+
+    const dob = new Date(parts[2], parts[0] - 1, parts[1]);
+    
     if (isNaN(dob)) return "Invalid Date"; 
 
     const today = new Date();
@@ -56,7 +57,6 @@ const RegistrationDetails = () => {
     return age;
   };
 
-  // Calculate this once before rendering the UI so we can check if it's a valid number
   const calculatedAge = calculateAge(userData.DOB);
 
   return (
@@ -67,7 +67,6 @@ const RegistrationDetails = () => {
         translucent={false}
       />
 
-      {/* Header */}
       <View style={styles.headerWrapper}>
         <SafeAreaView>
           <View style={styles.headerBar}>
@@ -96,13 +95,8 @@ const RegistrationDetails = () => {
         </View>
 
         <View style={styles.detailsBox}>
-          {/* Status Header */}
-          <View style={styles.statusHeader}>
-            <Text style={styles.statusText}>STATUS: VERIFIED</Text>
-            <Text style={styles.dateText}>ACCOUNT CREATED</Text>
-          </View>
+          
 
-          {/* User Data Rows */}
           <View style={styles.detailRow}>
             <Text style={styles.detailLabel}>Full Name</Text>
             <Text style={styles.detailValue}>{getFullName()}</Text>
@@ -121,7 +115,6 @@ const RegistrationDetails = () => {
                 { color: "#B20000", fontWeight: "bold" },
               ]}
             >
-              {/* UI presentation check: only append "years old" if it's a valid number */}
               {typeof calculatedAge === "number" 
                 ? `${calculatedAge} years old` 
                 : calculatedAge}
@@ -144,19 +137,11 @@ const RegistrationDetails = () => {
           </View>
         </View>
 
-        {/* Action Buttons */}
         <TouchableOpacity
           style={styles.primaryButton}
           onPress={() => router.push("/")}
         >
           <Text style={styles.primaryButtonText}>PROCEED TO HOME</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.secondaryButton}
-          onPress={() => router.back()}
-        >
-          <Text style={styles.secondaryButtonText}>EDIT REGISTRATION</Text>
         </TouchableOpacity>
 
         <View style={styles.bottomSpace} />
