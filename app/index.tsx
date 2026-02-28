@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -8,8 +8,11 @@ import {
   StyleSheet,
   SafeAreaView,
   StatusBar,
+  TextInput,
+  Platform, // Used to conditionally render UI layouts
 } from "react-native";
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 const roy = require("./assets/index/roy1.jpg");
 const ed = require("./assets/index/ed.jpg");
@@ -18,10 +21,41 @@ const jpnoq = require("./assets/index/jpnoq1.jpg");
 const jayson = require("./assets/index/jayson.jpg");
 
 const PinoyFlixFixed = () => {
+  const [form, setForm] = useState({
+    fName: "",
+    lName: "",
+    mName: "",
+    DOB: "",
+    address: "",
+    email: "",
+    contact: "",
+  });
+
+  const [showPicker, setShowPicker] = useState(false);
+  const [dateObj, setDateObj] = useState(new Date());
+
+  const router = useRouter();
+
+  const register = () => {
+    router.push({
+      pathname: "/detail",
+      params: {
+        fName: form.fName,
+        lName: form.lName,
+        mName: form.mName,
+        DOB: form.DOB,
+        address: form.address,
+        email: form.email,
+        contact: form.contact,
+      },
+    });
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" backgroundColor="#B20000" />
 
+      {/* Header */}
       <View style={styles.headerBar}>
         <Text style={styles.headerBrand}>
           PINOY<Text style={styles.headerHighlight}>FLIX</Text>
@@ -33,12 +67,15 @@ const PinoyFlixFixed = () => {
         style={styles.mainScroll}
         contentContainerStyle={styles.scrollContent}
         bounces={true}
+        showsVerticalScrollIndicator={false}
       >
+        {/* Category: Friends List */}
         <View style={styles.categoryBar}>
           <Text style={styles.categoryTitle}>POPULAR TROPA</Text>
         </View>
 
         <View style={styles.contentBox}>
+          {/* ROY */}
           <Link href={{ pathname: "/profile1" }} asChild>
             <TouchableOpacity style={styles.row}>
               <View style={styles.thumbContainer}>
@@ -59,6 +96,7 @@ const PinoyFlixFixed = () => {
             </TouchableOpacity>
           </Link>
 
+          {/* EDMARK */}
           <Link href={{ pathname: "/profile2" }} asChild>
             <TouchableOpacity style={styles.row}>
               <View style={styles.thumbContainer}>
@@ -79,6 +117,7 @@ const PinoyFlixFixed = () => {
             </TouchableOpacity>
           </Link>
 
+          {/* JOHN PAUL M */}
           <Link href={{ pathname: "/profile3" }} asChild>
             <TouchableOpacity style={styles.row}>
               <View style={styles.thumbContainer}>
@@ -99,6 +138,7 @@ const PinoyFlixFixed = () => {
             </TouchableOpacity>
           </Link>
 
+          {/* JHON PAUL N */}
           <Link href={{ pathname: "/profile4" }} asChild>
             <TouchableOpacity style={styles.row}>
               <View style={styles.thumbContainer}>
@@ -119,8 +159,11 @@ const PinoyFlixFixed = () => {
             </TouchableOpacity>
           </Link>
 
+          {/* JAYSON */}
           <Link href={{ pathname: "/profile5" }} asChild>
-            <TouchableOpacity style={styles.row}>
+            <TouchableOpacity
+              style={StyleSheet.flatten([styles.row, { borderBottomWidth: 0 }])}
+            >
               <View style={styles.thumbContainer}>
                 <Image source={jayson} style={styles.thumbnail} />
                 <View style={styles.hdBadge}>
@@ -137,7 +180,159 @@ const PinoyFlixFixed = () => {
                 <Text style={styles.metaData}>Recommended</Text>
               </View>
             </TouchableOpacity>
-          </Link>   
+          </Link>
+        </View>
+
+        {/* --- NEW REGISTRATION FORM SECTION --- */}
+        <View style={[styles.categoryBar, { marginTop: 20 }]}>
+          <Text style={styles.categoryTitle}>REGISTRATION FORM</Text>
+        </View>
+
+        <View style={styles.formContainer}>
+          <Text style={styles.formSectionHeader}>Full Name</Text>
+
+          <View style={styles.inputRow}>
+            <View style={styles.halfInput}>
+              <Text style={styles.inputLabel}>First Name</Text>
+              <TextInput
+                style={styles.inputField}
+                placeholder="e.g. Juan"
+                placeholderTextColor="#999"
+                value={form.fName}
+                onChangeText={(text) => setForm({ ...form, fName: text })}
+              />
+            </View>
+            <View style={styles.halfInput}>
+              <Text style={styles.inputLabel}>Last Name</Text>
+              <TextInput
+                style={styles.inputField}
+                placeholder="e.g. Dela Cruz"
+                placeholderTextColor="#999"
+                value={form.lName}
+                onChangeText={(text) => setForm({ ...form, lName: text })}
+              />
+            </View>
+          </View>
+
+          <View style={styles.inputRow}>
+            <View style={styles.halfInput}>
+              <Text style={styles.inputLabel}>Middle Name</Text>
+              <TextInput
+                style={styles.inputField}
+                placeholder="e.g. Santos"
+                placeholderTextColor="#999"
+                value={form.mName}
+                onChangeText={(text) => setForm({ ...form, mName: text })}
+              />
+            </View>
+          </View>
+
+          {/* --- UPDATED DATE OF BIRTH LAYOUT --- */}
+          <View style={styles.inputGroup}>
+            <Text style={styles.inputLabel}>Date of Birth</Text>
+
+            {Platform.OS === "web" ? (
+              /* Fallback Layout for Web */
+              <TextInput
+                style={styles.inputField}
+                placeholder="MM/DD/YYYY"
+                placeholderTextColor="#999"
+                value={form.DOB}
+                onChangeText={(text) => setForm({ ...form, DOB: text })}
+              />
+            ) : (
+              /* Touch Layout for Mobile */
+              <TouchableOpacity
+                style={[styles.inputField, { justifyContent: "center" }]}
+                onPress={() => setShowPicker(true)}
+              >
+                <Text
+                  style={{ color: form.DOB ? "#333" : "#999", fontSize: 14 }}
+                >
+                  {form.DOB || "MM/DD/YYYY"}
+                </Text>
+              </TouchableOpacity>
+            )}
+
+            {/* Mobile Native Picker Overlay */}
+            {showPicker && Platform.OS !== "web" && (
+              <View
+                style={Platform.OS === "ios" ? styles.iosPickerOverlay : null}
+              >
+                <DateTimePicker
+                  value={dateObj}
+                  mode="date"
+                  display={Platform.OS === "ios" ? "spinner" : "default"}
+                  maximumDate={new Date()}
+                  onChange={(event, selectedDate) => {
+                    if (Platform.OS === "android") {
+                      setShowPicker(false);
+                    }
+                    if (selectedDate) {
+                      setDateObj(selectedDate);
+                      const formatted = `${
+                        selectedDate.getMonth() + 1
+                      }/${selectedDate.getDate()}/${selectedDate.getFullYear()}`;
+                      setForm({ ...form, DOB: formatted });
+                    }
+                  }}
+                />
+                
+                {/* Custom Done Button Layout specifically for iOS */}
+                {Platform.OS === "ios" && (
+                  <TouchableOpacity
+                    style={styles.iosDoneButton}
+                    onPress={() => setShowPicker(false)}
+                  >
+                    <Text style={styles.iosDoneButtonText}>DONE</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            )}
+          </View>
+
+          <View style={styles.inputGroup}>
+            <Text style={styles.inputLabel}>Home Address</Text>
+            <TextInput
+              style={[
+                styles.inputField,
+                { height: 60, textAlignVertical: "top" },
+              ]}
+              placeholder="Full Address"
+              placeholderTextColor="#999"
+              multiline={true}
+              value={form.address}
+              onChangeText={(text) => setForm({ ...form, address: text })}
+            />
+          </View>
+
+          <View style={styles.inputGroup}>
+            <Text style={styles.inputLabel}>Email Address</Text>
+            <TextInput
+              style={styles.inputField}
+              placeholder="juan@example.com"
+              placeholderTextColor="#999"
+              keyboardType="email-address"
+              value={form.email}
+              onChangeText={(text) => setForm({ ...form, email: text })}
+            />
+          </View>
+
+          <View style={styles.inputGroup}>
+            <Text style={styles.inputLabel}>Contact Number</Text>
+            <TextInput
+              style={styles.inputField}
+              placeholder="09XX XXX XXXX"
+              placeholderTextColor="#999"
+              keyboardType="phone-pad"
+              value={form.contact}
+              onChangeText={(text) => setForm({ ...form, contact: text })}
+            />
+          </View>
+
+          <TouchableOpacity onPress={register} style={styles.submitButton}>
+            <Text style={styles.submitButtonText}> SUBMIT REGISTRATION</Text>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.bottomSpace} />
@@ -150,7 +345,7 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: "#B20000",
-    paddingTop: 25 
+    paddingTop: 25,
   },
   headerBar: {
     backgroundColor: "#B20000",
@@ -176,7 +371,7 @@ const styles = StyleSheet.create({
   },
   mainScroll: {
     flex: 1,
-    backgroundColor: "#F4F4F4", 
+    backgroundColor: "#F4F4F4",
   },
   scrollContent: {
     padding: 10,
@@ -247,6 +442,90 @@ const styles = StyleSheet.create({
     color: "#888",
     fontSize: 10,
     marginTop: 4,
+  },
+
+  /* --- FORM STYLES --- */
+  formContainer: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 2,
+    borderWidth: 1,
+    borderColor: "#DDD",
+    padding: 15,
+  },
+  formSectionHeader: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#B20000",
+    marginBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#EEE",
+    paddingBottom: 5,
+  },
+  inputGroup: {
+    marginBottom: 12,
+  },
+  inputRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 12,
+  },
+  halfInput: {
+    width: "48%",
+  },
+  inputLabel: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: "#444",
+    marginBottom: 5,
+  },
+  inputField: {
+    backgroundColor: "#FAFAFA",
+    borderWidth: 1,
+    borderColor: "#CCC",
+    borderRadius: 3,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    fontSize: 14,
+    color: "#333",
+  },
+  
+  /* --- IOS PICKER STYLES --- */
+  iosPickerOverlay: {
+    backgroundColor: "#FAFAFA",
+    marginTop: 5,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: "#CCC",
+    paddingBottom: 10,
+  },
+  iosDoneButton: {
+    backgroundColor: "#B20000",
+    marginHorizontal: 10,
+    paddingVertical: 10,
+    borderRadius: 4,
+    alignItems: "center",
+  },
+  iosDoneButtonText: {
+    color: "#FFD700",
+    fontWeight: "bold",
+    fontSize: 12,
+    letterSpacing: 1,
+  },
+  
+  submitButton: {
+    backgroundColor: "#B20000",
+    paddingVertical: 12,
+    borderRadius: 4,
+    alignItems: "center",
+    marginTop: 15,
+    borderWidth: 1,
+    borderColor: "#8B0000",
+  },
+  submitButtonText: {
+    color: "#FFD700",
+    fontSize: 14,
+    fontWeight: "bold",
+    letterSpacing: 1,
   },
   bottomSpace: {
     height: 100,
